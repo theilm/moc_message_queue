@@ -1,4 +1,6 @@
 <?php
+defined('TYPO3_MODE') or die();
+$_EXTKEY = 'moc_message_queue';
 $TCA['tx_mocmessagequeue_queue'] = [
     'ctrl' => [
         'title' => 'MOC Message queue',
