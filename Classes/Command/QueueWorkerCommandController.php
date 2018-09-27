@@ -85,12 +85,14 @@ class QueueWorkerCommandController extends CommandController
         );
         if ($debugOutput) {
             print date('d/m-Y H:i:s ') .  'Starting up queue worker with implementation ' . get_class($this->queue) . PHP_EOL;
+            ob_flush();
             $this->signalSlotDispatcher->connect(__CLASS__, 'messageReceived', function(MessageInterface $message) {
                 print date('d/m-Y H:i:s ') .  'Message received: ' . get_class($message);
                 if ($message instanceof StringMessage) {
                     print ' - Message ' . $message->getPayload();
                 }
                 print PHP_EOL;
+                ob_flush();
             });
         }
 
@@ -111,6 +113,7 @@ class QueueWorkerCommandController extends CommandController
                             'Maximum number of messages ' . $maximumMessages . ' is reached. Exiting with exitcode 9.'
                         );
                         print date('d/m-Y H:i:s ') .  'Maximum number of messages ' . $maximumMessages . ' is reached. Exiting with exitcode 9.' . PHP_EOL;
+                        ob_flush();
                         $this->sendAndExit(9);
                     }
                 } else {
@@ -122,6 +125,7 @@ class QueueWorkerCommandController extends CommandController
                 $this->logger->error($logMessage);
                 if ($debugOutput) {
                     print date('d/m-Y H:i:s ') .  $logMessage . PHP_EOL;
+                    ob_flush();
                 }
                 GeneralUtility::devLog(
                     $logMessage,
