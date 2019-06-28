@@ -64,7 +64,7 @@ class QueueWorkerCommandController extends CommandController
      * Run the queue in the background
      *
      * @param integer $maximumMessages If set to a number larger than 0 (default), only this amount of numbers are
-     * handed, before it exits with an exit code of 9
+     * handled, before it exits with an exit code of 9
      * @param boolean $debugOutput If TRUE, a slot is connected that display some debug output when a message is handled
      * @param integer $maximumTime If set to a number larger than 0 (default), the script only runs this time
      * (in seconds) before it exits with an exit code of 9
@@ -123,7 +123,7 @@ class QueueWorkerCommandController extends CommandController
                         $this->sendAndExit(9);
                     }
                     if ($maximumTime > 0 && (time() - $startTime) > $maximumTime) {
-                        $logMessage = 'Maximum runningtime ' .
+                        $logMessage = 'Maximum execution time of ' .
                             $maximumTime . ' seconds is reached. Exiting with exitcode 9.';
                         $this->logger->debug($logMessage);
                         if ($debugOutput) {
