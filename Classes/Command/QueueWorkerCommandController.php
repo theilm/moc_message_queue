@@ -63,12 +63,14 @@ class QueueWorkerCommandController extends CommandController
     /**
      * Run the queue in the background
      *
-     * @param integer $maximumMessages If set to a number larger than o (default), only this amount of numbers are handed,
-     * before it exits with an exit code of 9
+     * @param integer $maximumMessages If set to a number larger than 0 (default), only this amount of numbers are
+     * handed, before it exits with an exit code of 9
      * @param boolean $debugOutput If TRUE, a slot is connected that display some debug output when a message is handled
+     * @param integer $maximumTime If set to a number larger than 0 (default), the script only runs this time
+     * (in seconds) before it exits with an exit code of 9
      * @return void
      */
-    public function startCommand($maximumMessages = 0, $debugOutput = false)
+    public function startCommand($maximumMessages = 0, $debugOutput = false, $maximumTime = 0)
     {
         $this->logger->debug(
             'Starting up queue worker with implementation ' . get_class($this->queue)
@@ -84,7 +86,8 @@ class QueueWorkerCommandController extends CommandController
             }
         );
         if ($debugOutput) {
-            print date('d/m-Y H:i:s ') .  'Starting up queue worker with implementation ' . get_class($this->queue) . PHP_EOL;
+            print date('d/m-Y H:i:s ') .
+                'Starting up queue worker with implementation ' . get_class($this->queue) . PHP_EOL;
             ob_flush();
             $this->signalSlotDispatcher->connect(__CLASS__, 'messageReceived', function(MessageInterface $message) {
                 print date('d/m-Y H:i:s ') .  'Message received: ' . get_class($message);
@@ -97,6 +100,7 @@ class QueueWorkerCommandController extends CommandController
         }
 
         $numberOfMessagesHandled = 0;
+        $startTime = time();
         while (true) {
             try {
                 $message = $this->queue->waitAndReserve();
@@ -109,11 +113,23 @@ class QueueWorkerCommandController extends CommandController
                     $this->queue->finish($message);
                     $numberOfMessagesHandled++;
                     if ($maximumMessages > 0 && $numberOfMessagesHandled >= $maximumMessages) {
-                        $this->logger->debug(
-                            'Maximum number of messages ' . $maximumMessages . ' is reached. Exiting with exitcode 9.'
-                        );
-                        print date('d/m-Y H:i:s ') .  'Maximum number of messages ' . $maximumMessages . ' is reached. Exiting with exitcode 9.' . PHP_EOL;
-                        ob_flush();
+                        $logMessage = 'Maximum number of messages ' .
+                            $maximumMessages . ' is reached. Exiting with exitcode 9.';
+                        $this->logger->debug($logMessage);
+                        if ($debugOutput) {
+                            print date('d/m-Y H:i:s ') . $logMessage . PHP_EOL;
+                            ob_flush();
+                        }
+                        $this->sendAndExit(9);
+                    }
+                    if ($maximumTime > 0 && (time() - $startTime) > $maximumTime) {
+                        $logMessage = 'Maximum runningtime ' .
+                            $maximumTime . ' seconds is reached. Exiting with exitcode 9.';
+                        $this->logger->debug($logMessage);
+                        if ($debugOutput) {
+                            print date('d/m-Y H:i:s') . $logMessage . PHP_EOL;
+                            ob_flush();
+                        }
                         $this->sendAndExit(9);
                     }
                 } else {
