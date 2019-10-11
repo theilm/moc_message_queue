@@ -11,8 +11,7 @@ $TCA['tx_mocmessagequeue_queue'] = [
         'hideTable' => 1,
         'dynamicConfigFile' => \TYPO3\CMS\Core\Utility\ExtensionManagementUtility::extPath($_EXTKEY) .
             'Configuration/TCA/MessageQueue.php',
-        'iconfile' => \TYPO3\CMS\Core\Utility\ExtensionManagementUtility::extRelPath($_EXTKEY) .
-            'Resources/Public/Icons/MessageQueue.png'
+        'iconfile' => 'EXT:moc_message_queue/Resources/Public/Icons/MessageQueue.png'
     ],
     'interface' => ['showRecordFieldList' => 'data'],
     'columns' => [
