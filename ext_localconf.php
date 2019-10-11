@@ -3,12 +3,12 @@ if (!defined('TYPO3_MODE')) {
     die('Access denied.');
 }
 
-$config = unserialize($_EXTCONF);
+$config = unserialize($GLOBALS['TYPO3_CONF_VARS']['EXT']['extConf']['moc_message_queue']);
 \MOC\MocMessageQueue\Queue\BeanstalkQueue::$server = $config['beanstalk_server'];
 \MOC\MocMessageQueue\Queue\BeanstalkQueue::$tube = $config['beanstalk_tube'];
 
 if ($config['message_queue_implementation'] === 'Beanstalk' && $config['disable_pheanstalk_import'] !== "1") {
-    $pheanstalkClassRoot = \TYPO3\CMS\Core\Utility\ExtensionManagementUtility::extPath($_EXTKEY) . '/Classes';
+    $pheanstalkClassRoot = \TYPO3\CMS\Core\Utility\ExtensionManagementUtility::extPath('moc_message_queue') . '/Classes';
     require_once($pheanstalkClassRoot . '/Pheanstalk/ClassLoader.php');
     Pheanstalk_ClassLoader::register($pheanstalkClassRoot);
 }
